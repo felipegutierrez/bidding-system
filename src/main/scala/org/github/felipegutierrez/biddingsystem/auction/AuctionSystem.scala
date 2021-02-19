@@ -14,11 +14,12 @@ object AuctionSystem {
 
   implicit val system = ActorSystem("AuctionSystem")
   implicit val defaultTimeout = Timeout(3 seconds)
-
   val routes: Route = {
     get {
-      path(IntNumber) { (adId: Int) =>
-        println(s"ad ID $adId received")
+      (path(IntNumber) & parameterSeq) { (adId: Int, params: Seq[(String, String)]) =>
+        // handling requests as: "http://localhost:8080/2?c=5&b=2", make sure to use the request between quotes
+        println(s"The ad ID: $adId contains the parameters: ${params.map(paramString).mkString(", ")}")
+
         complete(StatusCodes.OK)
       } ~ pathEndOrSingleSlash {
         complete(StatusCodes.BadRequest)
@@ -28,9 +29,20 @@ object AuctionSystem {
     }
   }
 
+  /**
+   * Extracting parameters from the URI
+   *
+   * @param param
+   * @return
+   */
+  def paramString(param: (String, String)): String = s"""${param._1} = '${param._2}'"""
+
   def run() = {
     println("Action system started, listening on port 8080 and waiting parameters as described below")
-    println("http://localhost:8080/[id]?[key=value,...]")
+    println("http GET 'localhost:8080/3'")
+    println("http GET 'localhost:8080/3?b=5'")
+    println("http GET 'localhost:8080/3?b=5&c=10'")
+    println("http GET 'localhost:8080/3?b=5&c=10&d=19'")
     println("")
 
     Http()

@@ -63,5 +63,16 @@ class AuctionSystemSpec
         methodRejections.length shouldBe 1
       }
     }
+    "allow parameters as a list of key=value pairs" in {
+      Get("/1?a=5") ~> routes ~> check {
+        status shouldBe StatusCodes.OK
+      }
+      Get("/1?a=5&b=10") ~> routes ~> check {
+        status shouldBe StatusCodes.OK
+      }
+      Get("/1?a=5&a=5&b=10") ~> routes ~> check {
+        status shouldBe StatusCodes.OK
+      }
+    }
   }
 }
