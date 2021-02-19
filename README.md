@@ -80,7 +80,11 @@ following JSON format:
 ```
 
 The property `attributes` must contain all incoming query-parameters.
-Multi-value parameters need not be supported.
+Multi-value parameters need not be supported. 
+Test is after starting the bidders using the `scripts/test-setup.sh` script, then send some json file:
+```
+http POST localhost:[8081|8082|8083] < src/main/resources/bidders-request-[1|2|3|4|5|6|7|8|9|10|11].json
+```
 
 ### 1.3 Bid Response
 
