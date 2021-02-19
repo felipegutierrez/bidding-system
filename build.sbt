@@ -18,6 +18,9 @@ libraryDependencies ++= Seq(
   "com.typesafe.akka" %% "akka-actor" % akkaVersion,
   "com.typesafe.akka" %% "akka-testkit" % akkaVersion,
 
+  // akka streams
+  "com.typesafe.akka" %% "akka-stream" % akkaVersion,
+
   // Akka HTTP: overwrites are required because Akka-gRPC depends on 10.1.x
   "com.typesafe.akka" %% "akka-http" % akkaHttpVersion,
   "com.typesafe.akka" %% "akka-http-spray-json" % akkaHttpVersion,
