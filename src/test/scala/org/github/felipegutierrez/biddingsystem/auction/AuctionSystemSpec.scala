@@ -5,6 +5,7 @@ import akka.http.scaladsl.server.MethodRejection
 import akka.http.scaladsl.testkit.{RouteTestTimeout, ScalatestRouteTest}
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
+import spray.json._
 
 import scala.concurrent.duration._
 
@@ -73,6 +74,13 @@ class AuctionSystemSpec
       Get("/1?a=5&a=5&b=10") ~> routes ~> check {
         status shouldBe StatusCodes.OK
       }
+    }
+  }
+
+  "The auction that converts a bid to json string" should {
+    "return the correct json format" in {
+      val bid = getBid(2, Seq(("c", "5"), ("b", "2")))
+      println(s"bid request: ${bid.toJson.prettyPrint}")
     }
   }
 }
