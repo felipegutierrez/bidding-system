@@ -1,4 +1,4 @@
-package org.github.felipegutierrez.biddingsystem.auction
+package org.github.felipegutierrez.biddingsystem.auction.server
 
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.MethodRejection
@@ -9,12 +9,11 @@ import spray.json._
 
 import scala.concurrent.duration._
 
-class AuctionSystemSpec
-  extends AnyWordSpec
-    with Matchers
-    with ScalatestRouteTest {
+class AuctionServerSpec extends AnyWordSpec
+  with Matchers
+  with ScalatestRouteTest {
 
-  import AuctionSystem._
+  import AuctionServer._
 
   implicit val timeout: RouteTestTimeout = RouteTestTimeout(3 seconds)
 
