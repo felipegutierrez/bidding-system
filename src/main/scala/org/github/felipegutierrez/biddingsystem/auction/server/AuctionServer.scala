@@ -1,6 +1,7 @@
 package org.github.felipegutierrez.biddingsystem.auction.server
 
-import akka.actor.ActorSystem
+import akka.pattern.ask
+import akka.actor.{ActorPath, ActorSystem}
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
 import akka.http.scaladsl.model._
@@ -12,12 +13,15 @@ import org.github.felipegutierrez.biddingsystem.auction.protocol.BidProtocol._
 import org.github.felipegutierrez.biddingsystem.auction.{Bid, BidJsonProtocol}
 
 import java.util.UUID
+import scala.concurrent.{Await, Future}
 import scala.concurrent.duration._
+import scala.util.{Failure, Success}
 
 object AuctionServer extends BidJsonProtocol with SprayJsonSupport {
 
   implicit val system = ActorSystem("AuctionServerSystem")
   implicit val defaultTimeout = Timeout(3 seconds)
+  import system.dispatcher
 
   // val auctionClientSystem = ActorSystem("AuctionClientSystem")
   val bidders: List[String] = List[String]("http://localhost:8081", "http://localhost:8082", "http://localhost:8083")
@@ -32,9 +36,15 @@ object AuctionServer extends BidJsonProtocol with SprayJsonSupport {
         val bid = getBid(adId, params.toList)
         // println(s"bid request: ${bid.toJson.toString}")
         // send bid request to the AuctionClientActor asynchronously
-        auctionClientActor ! BidRequest(UUID.randomUUID().toString, bid)
-
-        complete(StatusCodes.OK)
+        val validResponseFuture: Option[Future[HttpResponse]] = {
+          val actorResponse: Future[Option[String]] = (auctionClientActor ? BidRequest(UUID.randomUUID().toString, bid)).mapTo[Option[String]]
+          Option(actorResponse.map(msg => HttpResponse(
+            StatusCodes.OK,
+            entity = HttpEntity(ContentTypes.`text/plain(UTF-8)`,msg.getOrElse(""))
+          )))
+        }
+        val entityFuture: Future[HttpResponse] = validResponseFuture.getOrElse(Future(HttpResponse(StatusCodes.BadRequest)))
+        complete(entityFuture)
       } ~ pathEndOrSingleSlash {
         complete(StatusCodes.BadRequest)
       } ~ {
@@ -42,9 +52,6 @@ object AuctionServer extends BidJsonProtocol with SprayJsonSupport {
       }
     }
   }
-
-  // bidders
-  // http://localhost:8081, http://localhost:8082, http://localhost:8083
 
   def getBid(adId: Int, attributes: Seq[(String, String)]): Bid = {
     Bid(adId, attributes.toList)
