@@ -7,7 +7,8 @@ object BidOfferConverter {
   implicit val BidOfferFormat = jsonFormat3(BidOffer)
 
   def getBidOffer(json: String): BidOffer = {
-    json.parseJson.convertTo[BidOffer]
+    val bidOffer = json.parseJson.convertTo[BidOffer]
+    BidOffer(bidOffer.id, bidOffer.bid, bidOffer.content.replace("$price$", bidOffer.bid.toString))
   }
 }
 

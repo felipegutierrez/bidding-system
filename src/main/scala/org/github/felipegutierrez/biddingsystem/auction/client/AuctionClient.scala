@@ -11,10 +11,8 @@ import org.github.felipegutierrez.biddingsystem.auction.{Bid, BidJsonProtocol, B
 import spray.json._
 
 import java.util.UUID
-import java.util.concurrent.{CountDownLatch, TimeUnit}
+import scala.concurrent.Await
 import scala.concurrent.duration.DurationInt
-import scala.concurrent.{Await, Future}
-import scala.util.{Failure, Success}
 
 object AuctionClient {
   //  def main(args: Array[String]): Unit = {
@@ -43,64 +41,45 @@ class AuctionClientActor(bidders: List[String])
   implicit val system = context.system
   val http = Http(system)
 
-  var bidOffer: BidOffer = BidOffer("", 0, "")
-
   def receive = {
     case bidRequest@BidRequest(requestId, bid) =>
       log.info(s"received bid request: $bidRequest")
-      // val content = """{"id": 10, "attributes" : { "a": "1", "b": "0" }}""".stripMargin
-      // val content = bidRequest.bid.toJson.toString
       val content = bidRequest.bid.toJson.toString
         .replace("[[", "{")
         .replace("]]", "}")
         .replace("\",\"", "\": \"")
         .replace("[", "")
         .replace("]", "")
-      // println(content)
 
-      val latch = new CountDownLatch(bidders.size)
-
-      val listResponseFuture: List[Future[HttpResponse]] = bidders
-        .map(bidder =>
-          HttpRequest( // create the request
-            HttpMethods.POST,
-            uri = Uri(bidder), // uri = Uri("http://localhost:8081"),
-            entity = HttpEntity(ContentTypes.`application/json`, content)
-          )
+      val bidOfferList = bidders.map { bidder =>
+        HttpRequest( // create the request
+          HttpMethods.POST,
+          uri = Uri(bidder),
+          entity = HttpEntity(ContentTypes.`application/json`, content)
         )
-        .map(httpRequest => http.singleRequest(httpRequest).pipeTo(self)) // send the request
-
-      listResponseFuture.foreach { response =>
-        Await.result(response, 3 seconds)
-        response.onComplete {
-          case Success(value) => latch.countDown // println(s"response success: $value")
-          case Failure(exception) =>
-            println(s"response failure: $exception")
-            latch.countDown
-        }
       }
-      latch.await(3, TimeUnit.SECONDS)
-      println("sending response now...")
-      // sender() ! Some("a:750")
-      sender() ! Some(bidOffer.content)
-      bidOffer = BidOffer("", 0, "")
-    case resp@HttpResponse(StatusCodes.OK, headers, entity, _) =>
-      log.info(s"received HttpResponse OK(200): $resp")
-      entity.dataBytes.runFold(ByteString(""))(_ ++ _).foreach { body =>
-        println("Got response, body: " + body.utf8String)
-        val newBidOffer = BidOfferConverter.getBidOffer(body.utf8String)
-        if (bidOffer.bid == 0) {
-          println("new")
-          bidOffer = BidOffer(newBidOffer.id, newBidOffer.bid, newBidOffer.content.replace("$price$", newBidOffer.bid.toString))
-        } else if (newBidOffer.bid > bidOffer.bid) {
-          println("replace new")
-          bidOffer = BidOffer(newBidOffer.id, newBidOffer.bid, newBidOffer.content.replace("$price$", newBidOffer.bid.toString))
-        } else {
-          println("none")
+        .map { httpRequest =>
+          val httpResponseFuture = http.singleRequest(httpRequest).pipeTo(self) // this creates the first Future[HttpResponse]
+          Await.ready(httpResponseFuture, 5 seconds)
+          httpResponseFuture.value.get.getOrElse(HttpResponse(StatusCodes.NotFound))
+        }.filter(httpResponse => httpResponse.status == StatusCodes.OK)
+        .map { httpResponse =>
+          println(s"response: $httpResponse")
+          val bidOfferFuture = httpResponse.entity.dataBytes.runFold(ByteString(""))(_ ++ _).map { body =>
+            println("Got response, body: " + body.utf8String)
+            BidOfferConverter.getBidOffer(body.utf8String)
+          }
+          Await.ready(bidOfferFuture, 5 seconds)
+          bidOfferFuture.value.get.getOrElse(BidOffer("", 0, ""))
         }
+      bidOfferList.foreach { bidOffer =>
+        println(s"bidOffer: ${bidOffer.id}, ${bidOffer.bid}, ${bidOffer.content}")
       }
-    case resp@HttpResponse(code, _, _, _) =>
-      log.info(s"Request failed, response code: $code")
-      resp.discardEntityBytes()
+      val bidOfferWinner = Some(bidOfferList)
+        .filter(_.nonEmpty)
+        .map(_.maxBy(_.bid))
+      // val bidOfferWinner = bidOfferList.maxBy(_.bid)
+      // println(s"winner: $bidOfferWinner")
+      sender() ! Some(bidOfferWinner.getOrElse(BidOffer("", 0, "")).content)
   }
 }

@@ -20,7 +20,7 @@ import scala.util.{Failure, Success}
 object AuctionServer extends BidJsonProtocol with SprayJsonSupport {
 
   implicit val system = ActorSystem("AuctionServerSystem")
-  implicit val defaultTimeout = Timeout(3 seconds)
+  implicit val defaultTimeout = Timeout(5 seconds)
   import system.dispatcher
 
   // val auctionClientSystem = ActorSystem("AuctionClientSystem")
