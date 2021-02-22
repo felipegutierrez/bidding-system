@@ -60,12 +60,10 @@ class AuctionServer(bidders: List[String] = List[String]("http://localhost:8081"
 
   def run() = {
     println("Action system started, listening on port 8080 and waiting parameters as described below")
-    println("curl -s \"http://localhost:8080/1?a=5\"")
-    println("curl -s \"http://localhost:8080/2?c=5&b=2\"")
+    println("curl -s \"http://127.0.0.1:8080/1?a=5\"")
+    println("curl -s \"http://127.0.0.1:8080/2?c=5&b=2\"")
     println("")
 
-    Http()
-      .newServerAt("localhost", 8080)
-      .bindFlow(routes)
+    Http().newServerAt("0.0.0.0", 8080).bindFlow(routes)
   }
 }

@@ -18,6 +18,22 @@ val mockitoScalaVersion = "1.16.5"
 
 resolvers += Resolver.jcenterRepo
 
+// ####### Dockerfile settings #######
+enablePlugins(JavaAppPackaging, JavaServerAppPackaging, DockerPlugin, AshScriptPlugin)
+import NativePackagerHelper._
+
+packageName in Docker := packageName.value
+version in Docker := version.value
+dockerExposedPorts := List(8080, 8081, 8082, 8083)
+dockerLabels := Map("felipeogutierrez" -> "felipe.o.gutierrez@gmail.com")
+dockerBaseImage := "openjdk:jre-alpine"
+dockerRepository := Some("felipeogutierrez")
+defaultLinuxInstallLocation in Docker := "/usr/local"
+daemonUser in Docker := "daemon"
+mappings in Universal ++= directory( baseDirectory.value / "src" / "main" / "resources" )
+bashScriptExtraDefines += """addApp "--bidders http://host.docker.internal:8081,http://host.docker.internal:8082,http://host.docker.internal:8083""""
+// ####### Dockerfile settings #######
+
 libraryDependencies ++= Seq(
   // Akka
   "com.typesafe.akka" %% "akka-actor" % akkaVersion,

@@ -4,6 +4,7 @@
 [![CodeFactor](https://www.codefactor.io/repository/github/felipegutierrez/bidding-system/badge)](https://www.codefactor.io/repository/github/felipegutierrez/bidding-system)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/df38ef7ca2764f78b5ab73e1c16c9024)](https://app.codacy.com/gh/felipegutierrez/bidding-system?utm_source=github.com&utm_medium=referral&utm_content=felipegutierrez/bidding-system&utm_campaign=Badge_Grade)
 ![Lines of code](https://img.shields.io/tokei/lines/github/felipegutierrez/bidding-system)
+![Docker Image Size (latest by date)](https://img.shields.io/docker/image-size/felipeogutierrez/bidding-system)
 
 Bidding system
 ==============
@@ -227,4 +228,20 @@ If the answer of a bidders last more than 5 seconds it will be considered a null
 Hence, the bid request will never fail. 
 Test it by killing some bidder(s) already running (and that were in the argument list) and issue single HTTP GET commands available at the script `run-test.sh`.
 The bid offer may change depending on the bidders that are available.
+
+### 3.4 Docker image
+
+We use the [sbt-native-packager][sbt-native-packager] to generate the Docker image.
+```
+sbt docker:stage
+sbt docker:publishLocal
+docker images
+ 
+REPOSITORY                        TAG                     IMAGE ID       CREATED          SIZE
+felipeogutierrez/bidding-system   0.1                     5284993293f2   20 seconds ago   127MB
+
+docker run --rm --add-host host.docker.internal:host-gateway -i -p 8080:8080 felipeogutierrez/bidding-system:0.1
+```
+
+[sbt-native-packager]: https://www.scala-sbt.org/sbt-native-packager/
 
