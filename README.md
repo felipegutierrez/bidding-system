@@ -27,7 +27,10 @@ Contents of this document:
   - [2.2 Start the Docker containers](#22-start-the-docker-containers)
   - [2.3 Start the application](#23-start-the-application)
   - [2.4 Run the test](#24-run-the-test)
-- [3 Task Submission](#3-task-submission)
+- [3 Bidding system in action](#3-in-action)
+  - [3.1 Requirements](#31-requirements)
+  - [3.2 Quick test](#32-quick-test)
+  - [3.3 Fault tolerant system](#33-fault-tolerant)
 
 
 ## 1 The task
@@ -199,7 +202,29 @@ requests to your application and verify the responses to these requests. If
 your application doesn't respond correctly, it will print out a diff between
 the expected and the actual results.
 
-## 3 Task Submission
+## 3 Bidding system in action
 
-When your application passes the test, please send the code and instructions on
-how to build and run it back to Yieldlab.
+### 3.1 Requirements
+
+ - JDK version 1.8+
+ - scala version 2.13.4+
+ - sbt version 1.4.7+
+
+### 3.2 Quick test
+
+After start the bidders using the script `test-setup.sh`, start the Bidding system by running the following command. 
+Please use `"`, the argument name `--bidders`. and separate the bidders on by a `,`.
+
+```
+sbt "run --bidders http://localhost:8081,http://localhost:8082,http://localhost:8083"
+```
+Run the generic test using the script `run-test.sh` and make sure that the 3 bidders are running.
+
+### 3.3 Fault tolerant system
+
+The Bidding system accepts bidders using a fault tolerance approach. In case that some or all bidders passed as argument to the Bidding System is not available, the Bidden System will compute the highest bid based on the bidders that are responding before 5 seconds by default.
+If the answer of a bidders last more than 5 seconds it will be considered a null bid and will not be processed. 
+Hence, the bid request will never fail. 
+Test it by killing some bidder(s) already running (and that were in the argument list) and issue single HTTP GET commands available at the script `run-test.sh`.
+The bid offer may change depending on the bidders that are available.
+
