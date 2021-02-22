@@ -73,11 +73,4 @@ class AuctionServerSpec extends AnyWordSpec
       }
     }
   }
-
-  "The auction that converts a bid to json string" should {
-    "return the correct json format" in {
-      val bid = auctionServer.getBid(2, Seq(("c", "5"), ("b", "2")))
-      // println(s"bid request: ${bid.toJson.prettyPrint}")
-    }
-  }
 }

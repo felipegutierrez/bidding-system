@@ -38,7 +38,7 @@ class AuctionServer(bidders: List[String] = List[String]("http://localhost:8081"
         // handling requests as: "http://localhost:8080/2?c=5&b=2", make sure to use the request between quotes
         // println(s"The ad ID: $adId contains the parameters: ${params.map(paramString).mkString(", ")}")
 
-        val bid = getBid(adId, params.toList)
+        val bid = Bid(adId, params.toMap)
         // println(s"bid request: ${bid.toJson.toString}")
         // send bid request to the AuctionClientActor asynchronously
         val validResponseFuture: Option[Future[HttpResponse]] = {
@@ -58,10 +58,6 @@ class AuctionServer(bidders: List[String] = List[String]("http://localhost:8081"
     }
   }
 
-  def getBid(adId: Int, attributes: Seq[(String, String)]): Bid = {
-    Bid(adId, attributes.toList)
-  }
-
   def run() = {
     println("Action system started, listening on port 8080 and waiting parameters as described below")
     println("curl -s \"http://localhost:8080/1?a=5\"")
@@ -72,7 +68,4 @@ class AuctionServer(bidders: List[String] = List[String]("http://localhost:8081"
       .newServerAt("localhost", 8080)
       .bindFlow(routes)
   }
-
-  class AuctionSystemException(message: String) extends RuntimeException(message)
-
 }

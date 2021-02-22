@@ -33,11 +33,6 @@ class AuctionClientActor(bidders: List[String])
     case bidRequest@BidRequest(requestId, bid) =>
       log.info(s"received bid request: $bidRequest")
       val content = bidRequest.bid.toJson.toString
-        .replace("[[", "{")
-        .replace("]]", "}")
-        .replace("\",\"", "\": \"")
-        .replace("[", "")
-        .replace("]", "")
 
       val bidOfferList = bidders.map { bidder =>
         HttpRequest( // create the request

@@ -23,7 +23,7 @@ class AuctionClientSpec extends TestKit(ActorSystem("AuctionClientSpec"))
     val bidders: List[String] = List[String]("http://localhost:8081", "http://localhost:8082", "http://localhost:8083")
     val auctionClientActor = system.actorOf(AuctionClientActor.props(bidders), "auctionClientActorSpec")
     "receive bid requests" in {
-      val bidRequestMsg = BidRequest(UUID.randomUUID().toString, Bid(1, List(("b", "5"), ("c", "10"))))
+      val bidRequestMsg = BidRequest(UUID.randomUUID().toString, Bid(1, Map("b" -> "5", "c" -> "10")))
       EventFilter.info(message = s"received bid request: $bidRequestMsg", occurrences = 1) intercept {
         auctionClientActor ! bidRequestMsg
       }
