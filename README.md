@@ -231,7 +231,7 @@ The bid offer may change depending on the bidders that are available.
 
 ### 3.4 Docker image
 
-We use the [sbt-native-packager][sbt-native-packager] to generate the Docker image.
+We use the [sbt-native-packager][sbt-native-packager] to generate the Docker image of the [Bidding System][bidding-system-image].
 ```
 sbt docker:stage
 sbt docker:publishLocal
@@ -244,4 +244,7 @@ docker run --rm --add-host host.docker.internal:host-gateway -i -p 8080:8080 fel
 ```
 
 [sbt-native-packager]: https://www.scala-sbt.org/sbt-native-packager/
+[bidding-system-image]: https://hub.docker.com/repository/docker/felipeogutierrez/bidding-system
+
+
 
