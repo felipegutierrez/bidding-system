@@ -208,13 +208,13 @@ the expected and the actual results.
 ### 3.1 Requirements
 
  - JDK version 1.8+
- - scala version 2.13.4+
+ - scala version 2.12
  - sbt version 1.4.7+
 
 ### 3.2 Quick test
 
 After start the bidders using the script `test-setup.sh`, start the Bidding system by running the following command. 
-Please use `"`, the argument name `--bidders`. and separate the bidders on by a `,`.
+Please use `"`, the argument name `--bidders`. and separate the bidders by a single `,` without spaces.
 
 ```
 sbt "run --bidders http://localhost:8081,http://localhost:8082,http://localhost:8083"
@@ -223,10 +223,11 @@ Run the generic test using the script `run-test.sh` and make sure that the 3 bid
 
 ### 3.3 Fault tolerant system
 
-The Bidding system accepts bidders using a fault tolerance approach. In case that some or all bidders passed as argument to the Bidding System is not available, the Bidden System will compute the highest bid based on the bidders that are responding before 5 seconds by default.
-If the answer of a bidders last more than 5 seconds it will be considered a null bid and will not be processed. 
-Hence, the bid request will never fail. 
-Test it by killing some bidder(s) already running (and that were in the argument list) and issue single HTTP GET commands available at the script `run-test.sh`.
+The Bidding system accepts bidders using a fault tolerance approach. 
+In case that some or all bidders passed as argument to the Bidding System are not available, the Bidden System will compute the highest bid based on the bidders that are responding before 5 seconds. 
+If the answer of a bidder last more than 5 seconds it will be considered a null bid and will not be processed. 
+Hence, the bid request will never fail, regardless there are bidders available or not. 
+Test it by killing some bidder(s) already running (i.e., that were passed in the argument list) and issue single HTTP GET command available at the script `run-test.sh`.
 The bid offer may change depending on the bidders that are available.
 
 ### 3.4 Docker image
