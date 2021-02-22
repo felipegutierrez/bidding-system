@@ -14,6 +14,7 @@ import java.util.UUID
 import scala.concurrent.Await
 import scala.concurrent.duration.DurationInt
 
+/*
 object AuctionClient {
   //  def main(args: Array[String]): Unit = {
   //    run()
@@ -25,6 +26,7 @@ object AuctionClient {
     auctionClientActor ! BidRequest(UUID.randomUUID().toString, Bid(2, List(("c", "5"), ("b", "2"))))
   }
 }
+*/
 
 object AuctionClientActor {
   def props(bidders: List[String]) = {
@@ -64,22 +66,20 @@ class AuctionClientActor(bidders: List[String])
           httpResponseFuture.value.get.getOrElse(HttpResponse(StatusCodes.NotFound))
         }.filter(httpResponse => httpResponse.status == StatusCodes.OK)
         .map { httpResponse =>
-          println(s"response: $httpResponse")
+          // println(s"response: $httpResponse")
           val bidOfferFuture = httpResponse.entity.dataBytes.runFold(ByteString(""))(_ ++ _).map { body =>
-            println("Got response, body: " + body.utf8String)
+            log.info("Got response, body: " + body.utf8String)
             BidOfferConverter.getBidOffer(body.utf8String)
           }
           Await.ready(bidOfferFuture, 5 seconds)
           bidOfferFuture.value.get.getOrElse(BidOffer("", 0, ""))
         }
-      bidOfferList.foreach { bidOffer =>
-        println(s"bidOffer: ${bidOffer.id}, ${bidOffer.bid}, ${bidOffer.content}")
-      }
+      // bidOfferList.foreach ( bidOffer => println(s"bidOffer: ${bidOffer.id}, ${bidOffer.bid}, ${bidOffer.content}"))
       val bidOfferWinner = Some(bidOfferList)
         .filter(_.nonEmpty)
         .map(_.maxBy(_.bid))
       // val bidOfferWinner = bidOfferList.maxBy(_.bid)
-      // println(s"winner: $bidOfferWinner")
+      log.info(s"winner: $bidOfferWinner")
       sender() ! Some(bidOfferWinner.getOrElse(BidOffer("", 0, "")).content)
   }
 }
