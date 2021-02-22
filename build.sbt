@@ -12,6 +12,11 @@ val akkaHttpVersion = "10.2.2"
 val logbackVersion = "1.2.3"
 val scalaLoggingVersion = "3.9.2"
 val jwtSprayVersion = "4.3.0"
+val junitVersion = "4.13"
+val scalaTestPlusVersion = "3.2.3.0"
+val mockitoScalaVersion = "1.16.5"
+
+resolvers += Resolver.jcenterRepo
 
 libraryDependencies ++= Seq(
   // Akka
@@ -30,11 +35,14 @@ libraryDependencies ++= Seq(
   // JWT
   "com.pauldijou" %% "jwt-spray-json" % jwtSprayVersion,
 
-  // Scala test
+  // Scala test + junit
   "org.scalatest" %% "scalatest" % scalaTestVersion,
+  "junit" % "junit" % junitVersion % Test,
+  "org.scalatestplus" %% "junit-4-13" % scalaTestPlusVersion % "test",
 
-  // Log
+  // Log + Mockito
   "com.typesafe.akka" %% "akka-slf4j" % akkaVersion,
   "ch.qos.logback" % "logback-classic" % logbackVersion,
   "com.typesafe.scala-logging" %% "scala-logging" % scalaLoggingVersion,
+  "org.mockito" %% "mockito-scala" % mockitoScalaVersion,
 )

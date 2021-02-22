@@ -5,15 +5,12 @@ import akka.http.scaladsl.server.MethodRejection
 import akka.http.scaladsl.testkit.{RouteTestTimeout, ScalatestRouteTest}
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-import spray.json._
 
 import scala.concurrent.duration._
 
 class AuctionServerSpec extends AnyWordSpec
   with Matchers
   with ScalatestRouteTest {
-
-  import AuctionServer._
   val auctionServer = new AuctionServer()
 
   implicit val timeout: RouteTestTimeout = RouteTestTimeout(3 seconds)
