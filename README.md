@@ -1,3 +1,4 @@
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/df38ef7ca2764f78b5ab73e1c16c9024)](https://app.codacy.com/gh/felipegutierrez/bidding-system?utm_source=github.com&utm_medium=referral&utm_content=felipegutierrez/bidding-system&utm_campaign=Badge_Grade)
 [![Build Status](https://travis-ci.com/felipegutierrez/bidding-system.svg?branch=main)](https://travis-ci.com/felipegutierrez/bidding-system)
 [![Coverage Status](https://coveralls.io/repos/github/felipegutierrez/bidding-system/badge.svg)](https://coveralls.io/github/felipegutierrez/bidding-system)
 [![CodeFactor](https://www.codefactor.io/repository/github/felipegutierrez/bidding-system/badge)](https://www.codefactor.io/repository/github/felipegutierrez/bidding-system)
