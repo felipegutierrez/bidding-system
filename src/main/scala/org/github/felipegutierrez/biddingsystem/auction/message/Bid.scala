@@ -1,4 +1,4 @@
-package org.github.felipegutierrez.biddingsystem.auction
+package org.github.felipegutierrez.biddingsystem.auction.message
 
 import spray.json._
 

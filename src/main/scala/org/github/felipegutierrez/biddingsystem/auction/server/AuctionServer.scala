@@ -9,8 +9,8 @@ import akka.http.scaladsl.server.Route
 import akka.pattern.ask
 import akka.util.Timeout
 import org.github.felipegutierrez.biddingsystem.auction.client.AuctionClientActor
-import org.github.felipegutierrez.biddingsystem.auction.protocol.BidProtocol._
-import org.github.felipegutierrez.biddingsystem.auction.{Bid, BidJsonProtocol}
+import org.github.felipegutierrez.biddingsystem.auction.message.BidProtocol._
+import org.github.felipegutierrez.biddingsystem.auction.message.{Bid, BidJsonProtocol}
 
 import java.util.UUID
 import scala.concurrent.Future

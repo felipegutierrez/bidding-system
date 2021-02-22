@@ -1,32 +1,18 @@
 package org.github.felipegutierrez.biddingsystem.auction.client
 
-import akka.actor.{Actor, ActorLogging, ActorSystem, Props}
+import akka.actor.{Actor, ActorLogging, Props}
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
 import akka.http.scaladsl.model._
 import akka.pattern.pipe
 import akka.util.ByteString
-import org.github.felipegutierrez.biddingsystem.auction.protocol.BidProtocol._
-import org.github.felipegutierrez.biddingsystem.auction.{Bid, BidJsonProtocol, BidOffer, BidOfferConverter}
+import org.github.felipegutierrez.biddingsystem.auction.message.BidJsonProtocol
+import org.github.felipegutierrez.biddingsystem.auction.message.BidProtocol._
+import org.github.felipegutierrez.biddingsystem.auction.util.BidResponseConverter
 import spray.json._
 
-import java.util.UUID
 import scala.concurrent.Await
-import scala.concurrent.duration.DurationInt
-
-/*
-object AuctionClient {
-  //  def main(args: Array[String]): Unit = {
-  //    run()
-  //  }
-
-  def run() = {
-    val system = ActorSystem("AuctionClientSystem")
-    val auctionClientActor = system.actorOf(Props[AuctionClientActor], "auctionClientActor")
-    auctionClientActor ! BidRequest(UUID.randomUUID().toString, Bid(2, List(("c", "5"), ("b", "2"))))
-  }
-}
-*/
+import scala.concurrent.duration._
 
 object AuctionClientActor {
   def props(bidders: List[String]) = {
@@ -69,17 +55,16 @@ class AuctionClientActor(bidders: List[String])
           // println(s"response: $httpResponse")
           val bidOfferFuture = httpResponse.entity.dataBytes.runFold(ByteString(""))(_ ++ _).map { body =>
             log.info("Got response, body: " + body.utf8String)
-            BidOfferConverter.getBidOffer(body.utf8String)
+            BidResponseConverter.getBidResponse(body.utf8String)
           }
           Await.ready(bidOfferFuture, 5 seconds)
-          bidOfferFuture.value.get.getOrElse(BidOffer("", 0, ""))
+          bidOfferFuture.value.get.getOrElse(BidResponse("", 0, ""))
         }
       // bidOfferList.foreach ( bidOffer => println(s"bidOffer: ${bidOffer.id}, ${bidOffer.bid}, ${bidOffer.content}"))
       val bidOfferWinner = Some(bidOfferList)
         .filter(_.nonEmpty)
         .map(_.maxBy(_.bid))
-      // val bidOfferWinner = bidOfferList.maxBy(_.bid)
       log.info(s"winner: $bidOfferWinner")
-      sender() ! Some(bidOfferWinner.getOrElse(BidOffer("", 0, "")).content)
+      sender() ! Some(bidOfferWinner.getOrElse(BidResponse("", 0, "")).content)
   }
 }

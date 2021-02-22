@@ -2,8 +2,8 @@ package org.github.felipegutierrez.biddingsystem.auction.client
 
 import akka.actor.ActorSystem
 import akka.testkit.{EventFilter, ImplicitSender, TestKit}
-import org.github.felipegutierrez.biddingsystem.auction.Bid
-import org.github.felipegutierrez.biddingsystem.auction.protocol.BidProtocol.BidRequest
+import org.github.felipegutierrez.biddingsystem.auction.message.Bid
+import org.github.felipegutierrez.biddingsystem.auction.message.BidProtocol.BidRequest
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.wordspec.AnyWordSpecLike
 
