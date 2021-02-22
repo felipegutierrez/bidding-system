@@ -66,5 +66,8 @@ class AuctionClientActor(bidders: List[String])
         .map(_.maxBy(_.bid))
       log.info(s"winner: $bidOfferWinner")
       sender() ! Some(bidOfferWinner.getOrElse(BidResponse("", 0, "")).content)
+    case response@HttpResponse(StatusCodes.OK, headers, entity, _) => log.info(s"received HttpResponse OK(200): $response")
+    case response@HttpResponse(code, _, _, _) => log.info(s"Request failed, response code: $code")
+    case message => log.warning(s"unknown message: $message")
   }
 }

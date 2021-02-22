@@ -1,6 +1,7 @@
 package org.github.felipegutierrez.biddingsystem.auction.client
 
 import akka.actor.ActorSystem
+import akka.http.scaladsl.model.{HttpEntity, HttpProtocols, HttpResponse, StatusCodes}
 import akka.testkit.{EventFilter, ImplicitSender, TestKit}
 import org.github.felipegutierrez.biddingsystem.auction.message.Bid
 import org.github.felipegutierrez.biddingsystem.auction.message.BidProtocol.BidRequest
@@ -25,6 +26,24 @@ class AuctionClientSpec extends TestKit(ActorSystem("AuctionClientSpec"))
       val bidRequestMsg = BidRequest(UUID.randomUUID().toString, Bid(1, List(("b", "5"), ("c", "10"))))
       EventFilter.info(message = s"received bid request: $bidRequestMsg", occurrences = 1) intercept {
         auctionClientActor ! bidRequestMsg
+      }
+    }
+    "receive http response messages with 200 OK" in {
+      val httpResponseMsg = HttpResponse(StatusCodes.OK, Nil, HttpEntity.Empty, HttpProtocols.`HTTP/1.1`)
+      EventFilter.info(message = s"received HttpResponse OK(200): $httpResponseMsg", occurrences = 1) intercept {
+        auctionClientActor ! httpResponseMsg
+      }
+    }
+    "receive http response messages failures" in {
+      val httpResponseMsg = HttpResponse(StatusCodes.BadRequest, Nil, HttpEntity.Empty, HttpProtocols.`HTTP/1.1`)
+      EventFilter.info(message = s"Request failed, response code: ${httpResponseMsg.status}", occurrences = 1) intercept {
+        auctionClientActor ! httpResponseMsg
+      }
+    }
+    "log unknown messages" in {
+      val message = "this case is not supported"
+      EventFilter.warning(message = s"unknown message: $message", occurrences = 1) intercept {
+        auctionClientActor ! message
       }
     }
   }
