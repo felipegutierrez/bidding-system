@@ -15,7 +15,7 @@ import scala.concurrent.Await
 import scala.concurrent.duration._
 
 /**
- *
+ * The Auction Client actor receives a list of bidders as its property.
  */
 object AuctionClientActor {
   def props(bidders: List[String]) = {
@@ -52,18 +52,20 @@ class AuctionClientActor(bidders: List[String])
       log.info(s"received bid request: $bidRequest")
       val content = bidRequest.bid.toJson.toString
 
-      val bidOfferList = bidders.map { bidder =>
-        HttpRequest( // create the request
-          HttpMethods.POST,
-          uri = Uri(bidder),
-          entity = HttpEntity(ContentTypes.`application/json`, content)
-        )
-      }
+      val bidOfferList = bidders
+        .map { bidder =>
+          HttpRequest( // create the request
+            HttpMethods.POST,
+            uri = Uri(bidder),
+            entity = HttpEntity(ContentTypes.`application/json`, content)
+          )
+        }
         .map { httpRequest =>
           val httpResponseFuture = http.singleRequest(httpRequest).pipeTo(self) // this creates the first Future[HttpResponse]
           Await.ready(httpResponseFuture, 5 seconds)
-          httpResponseFuture.value.get.getOrElse(HttpResponse(StatusCodes.NotFound))
-        }.filter(httpResponse => httpResponse.status == StatusCodes.OK)
+          httpResponseFuture.value.get.toOption.getOrElse(HttpResponse(StatusCodes.NotFound))
+        }
+        .filter(httpResponse => httpResponse.status == StatusCodes.OK)
         .map { httpResponse =>
           // println(s"response: $httpResponse")
           val bidOfferFuture = httpResponse.entity.dataBytes.runFold(ByteString(""))(_ ++ _).map { body =>
@@ -71,12 +73,14 @@ class AuctionClientActor(bidders: List[String])
             BidResponseConverter.getBidResponse(body.utf8String)
           }
           Await.ready(bidOfferFuture, 5 seconds)
-          bidOfferFuture.value.get.getOrElse(BidResponse("", 0, ""))
+          bidOfferFuture.value.get.toOption.getOrElse(BidResponse("", 0, ""))
         }
+
       // bidOfferList.foreach ( bidOffer => println(s"bidOffer: ${bidOffer.id}, ${bidOffer.bid}, ${bidOffer.content}"))
       val bidOfferWinner = Some(bidOfferList)
         .filter(_.nonEmpty)
         .map(_.maxBy(_.bid))
+
       log.info(s"winner: $bidOfferWinner")
       sender() ! Some(bidOfferWinner.getOrElse(BidResponse("", 0, "")).content)
     case response@HttpResponse(StatusCodes.OK, headers, entity, _) => log.info(s"received HttpResponse OK(200): $response")
