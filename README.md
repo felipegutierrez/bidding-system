@@ -1,4 +1,3 @@
-
 [![Build Status](https://travis-ci.com/felipegutierrez/bidding-system.svg?branch=main)](https://travis-ci.com/felipegutierrez/bidding-system)
 [![Coverage Status](https://coveralls.io/repos/github/felipegutierrez/bidding-system/badge.svg)](https://coveralls.io/github/felipegutierrez/bidding-system)
 [![CodeFactor](https://www.codefactor.io/repository/github/felipegutierrez/bidding-system/badge)](https://www.codefactor.io/repository/github/felipegutierrez/bidding-system)
@@ -31,6 +30,7 @@ Contents of this document:
 - [3 Bidding system in action](#3-in-action)
   - [3.1 Requirements](#31-requirements)
   - [3.2 Quick test](#32-quick-test)
+    - [3.2.1 Basic commands](#321-basic-commands)
   - [3.3 Fault tolerant system](#33-fault-tolerant)
 
 
@@ -220,6 +220,13 @@ Please use `"`, the argument name `--bidders`. and separate the bidders by a sin
 sbt "run --bidders http://localhost:8081,http://localhost:8082,http://localhost:8083"
 ```
 Run the generic test using the script `run-test.sh` and make sure that the 3 bidders are running.
+
+#### 3.2.1 Basic commands:
+
+- Compiling: `sbt compile`.
+- Compiling & Running: `sbt "run --bidders http://localhost:8081,http://localhost:8082,http://localhost:8083"`.
+- Unit tests: `sbt test`.
+- Generate documentation: `sbt doc`, then open the `target/scala-2.12/api/index.html` file.
 
 ### 3.3 Fault tolerant system
 

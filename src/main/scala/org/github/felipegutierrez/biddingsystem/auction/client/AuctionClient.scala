@@ -14,12 +14,30 @@ import spray.json._
 import scala.concurrent.Await
 import scala.concurrent.duration._
 
+/**
+ *
+ */
 object AuctionClientActor {
   def props(bidders: List[String]) = {
     Props(new AuctionClientActor(bidders))
   }
 }
 
+/**
+ * The Auction Client is an Actor that is created with a list of bidders. These bidders will be consulted when a bid request message is received.
+ * So, if there is no bidders to consult, the Auction Client actor will always answer with a null winner bid.
+ * The Auction Client receives [[org.github.felipegutierrez.biddingsystem.auction.message.BidProtocol.BidRequest]] which
+ * are converted to JSON using [[https://doc.akka.io/japi/akka-http/current/akka/http/scaladsl/marshallers/sprayjson/SprayJsonSupport.html SprayJsonSupport]]
+ * and sent to each of the bidders on the list {@code bidders}.
+ * In case that a bidder of the {@code bidders} list is not available, the Auction Client will not fail the whole request process.
+ * Instead, it will failure this single bidder request by considering it a null HTTP Response after 5 seconds.
+ * The bids received from the {@code bidders} are converted to [[org.github.felipegutierrez.biddingsystem.auction.message.BidProtocol.BidResponse]] also using the
+ * [[https://doc.akka.io/japi/akka-http/current/akka/http/scaladsl/marshallers/sprayjson/SprayJsonSupport.html SprayJsonSupport]].
+ * The winner bid is processed using [[https://doc.akka.io/docs/akka/current/stream/index.html Akka-stream]] operators
+ * and the response is extracted and sent back as a simple String wrapped into a [[https://www.scala-lang.org/api/2.12.9/scala/Some.html scala Some]] value.
+ *
+ * @param bidders the list of bidders received from the [[org.github.felipegutierrez.biddingsystem.auction.server.AuctionServer]].
+ */
 class AuctionClientActor(bidders: List[String])
   extends Actor with ActorLogging
     with BidJsonProtocol with SprayJsonSupport {

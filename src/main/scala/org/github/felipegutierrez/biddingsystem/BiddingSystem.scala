@@ -3,6 +3,9 @@ package org.github.felipegutierrez.biddingsystem
 import com.typesafe.scalalogging.LazyLogging
 import org.github.felipegutierrez.biddingsystem.auction.server.AuctionServer
 
+/**
+ * This is the entry point of the Bidding System.
+ */
 object BiddingSystem {
 
   def main(args: Array[String]): Unit = {
@@ -10,7 +13,16 @@ object BiddingSystem {
     v.run(args)
   }
 
+  /**
+   * The Bidding System main class with logging
+   */
   class BiddingSystem extends LazyLogging {
+    /**
+     * The method that receives arguments to start the Bidding System with a given number of bidders.
+     * The bidders must be passed as argument following the pattern "--bidders [host_of_the_bidder_split_by_comma_without_space]"
+     * Example: "--bidders http://localhost:8081,http://localhost:8082,http://localhost:8083"
+     * @param args the bidders split by comma and without space
+     */
     def run(args: Array[String]): Unit = {
       println("\nThis is a Bidding system")
 
