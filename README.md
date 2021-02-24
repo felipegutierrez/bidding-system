@@ -32,6 +32,8 @@ Contents of this document:
   - [3.2 Quick test](#32-quick-test)
     - [3.2.1 Basic commands](#321-basic-commands)
   - [3.3 Fault tolerant system](#33-fault-tolerant)
+  - [3.4 Bidding System on Docker](#34-docker-image)
+  - [3.5 Bidding System on Kubernetes](#35-kubernetes)
 
 
 ## 1 The task
@@ -208,7 +210,7 @@ the expected and the actual results.
 ### 3.1 Requirements
 
  - JDK version 1.8+
- - scala version 2.12
+ - scala version 2.12+
  - sbt version 1.4.7+
 
 ### 3.2 Quick test
@@ -248,11 +250,45 @@ docker images
 REPOSITORY                        TAG                     IMAGE ID       CREATED          SIZE
 felipeogutierrez/bidding-system   0.1                     5284993293f2   20 seconds ago   127MB
 
-docker run --rm --add-host host.docker.internal:host-gateway -i -p 8080:8080 felipeogutierrez/bidding-system:0.1
+docker run --rm --add-host host.docker.internal:host-gateway -i -p 8080:8080 felipeogutierrez/bidding-system:0.1 --bidders http://host.docker.internal:8081,http://host.docker.internal:8082,http://host.docker.internal:8083
+
+docker image rm -f IMAGE_ID
 ```
 
 [sbt-native-packager]: https://www.scala-sbt.org/sbt-native-packager/
 [bidding-system-image]: https://hub.docker.com/repository/docker/felipeogutierrez/bidding-system
 
+### 3.5 Kubernetes
+
+TODO: the kube-file to start the bidders containers using docker are not starting using kubernetes. 
+This is happening because the parameters "server.port=8081 biddingTrigger=a initial=150" are not recognized by the docker image inside Kubernetes.
+Therefore, all the bidders start on the default mode on port 8081 and we cannot have a winner bid in this environment.
+
+```
+$ minikube start --cpus 4 --memory 8192
+$ kubectl create namespace bidding-system
+$ kubectl apply -f k8s/bidders-pod.yaml -n bidding-system
+$ kubectl apply -f k8s/bidding-auction-system-pod.yaml -n bidding-system
+$ kubectl -n bidding-system port-forward bidding-auction-pod 8080
+Forwarding from 127.0.0.1:8080 -> 8080
+Forwarding from [::1]:8080 -> 8080
+```
+
+```
+kubectl get services -A
+kubectl get pods -A
+kubectl -n bidding-system logs -f bidder-01-0
+kubectl -n bidding-system logs -f bidder-02-0
+kubectl -n bidding-system logs -f bidder-03-0
+kubectl -n bidding-system logs -f bidding-auction-pod
+kubectl -n bidding-system exec -i -t bidding-auction-pod -- /bin/ash
+
+
+kubectl -n bidding-system delete pods bidder-01-0
+kubectl -n bidding-system delete pods bidder-02-0
+kubectl -n bidding-system delete pods bidder-03-0
+kubectl -n bidding-system delete pods bidding-auction-pod
+kubectl delete namespace bidding-system
+```
 
 

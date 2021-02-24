@@ -31,7 +31,7 @@ dockerRepository := Some("felipeogutierrez")
 defaultLinuxInstallLocation in Docker := "/usr/local"
 daemonUser in Docker := "daemon"
 mappings in Universal ++= directory( baseDirectory.value / "src" / "main" / "resources" )
-bashScriptExtraDefines += """addApp "--bidders http://host.docker.internal:8081,http://host.docker.internal:8082,http://host.docker.internal:8083""""
+// bashScriptExtraDefines += """addApp "--bidders http://host.docker.internal:8081,http://host.docker.internal:8082,http://host.docker.internal:8083""""
 // ####### Dockerfile settings #######
 
 libraryDependencies ++= Seq(

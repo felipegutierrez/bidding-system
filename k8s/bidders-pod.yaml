@@ -1,0 +1,132 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: bidder-01-service
+  namespace: bidding-system
+  labels:
+    app: bidder-01-service
+spec:
+  type: ClusterIP
+  selector:
+    app: bidder-01-service
+  ports:
+    - name: bidder-01-service
+      protocol: TCP
+      port: 8081
+      targetPort: 8081
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: bidder-01
+  namespace: bidding-system
+spec:
+  serviceName: bidder-01-service
+  selector:
+    matchLabels:
+      app: bidder-01-service
+  template:
+    metadata:
+      labels:
+        app: bidder-01-service
+    spec:
+      hostname: bidder-01-service
+      containers:
+        - image: yieldlab/recruiting-test-bidder
+          name: bidder-01
+          imagePullPolicy: IfNotPresent # Always|IfNotPresent
+          args:
+            - "server.port=8081 biddingTrigger=a initial=150"
+          ports:
+            - name: bidder-01
+              containerPort: 8081
+---
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bidder-02-service
+  namespace: bidding-system
+  labels:
+    app: bidder-02-service
+spec:
+  type: ClusterIP
+  selector:
+    app: bidder-02-service
+  ports:
+    - name: bidder-02-service
+      protocol: TCP
+      port: 8082
+      targetPort: 8082
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: bidder-02
+  namespace: bidding-system
+spec:
+  serviceName: bidder-02-service
+  selector:
+    matchLabels:
+      app: bidder-02-service
+  template:
+    metadata:
+      labels:
+        app: bidder-02-service
+    spec:
+      hostname: bidder-02-service
+      containers:
+        - image: yieldlab/recruiting-test-bidder
+          name: bidder-02
+          imagePullPolicy: IfNotPresent # Always|IfNotPresent
+          args:
+            - "server.port=8082 biddingTrigger=b initial=250"
+          ports:
+            - name: bidder-02
+              containerPort: 8082
+---
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bidder-03-service
+  namespace: bidding-system
+  labels:
+    app: bidder-03-service
+spec:
+  type: ClusterIP
+  selector:
+    app: bidder-03-service
+  ports:
+    - name: bidder-03-service
+      protocol: TCP
+      port: 8083
+      targetPort: 8083
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: bidder-03
+  namespace: bidding-system
+spec:
+  serviceName: bidder-03-service
+  selector:
+    matchLabels:
+      app: bidder-03-service
+  template:
+    metadata:
+      labels:
+        app: bidder-03-service
+    spec:
+      hostname: bidder-03-service
+      containers:
+        - image: yieldlab/recruiting-test-bidder
+          name: bidder-03
+          imagePullPolicy: IfNotPresent # Always|IfNotPresent
+          args:
+            - "server.port=8083 biddingTrigger=c initial=500"
+          ports:
+            - name: bidder-03
+              containerPort: 8083
+---
+---
