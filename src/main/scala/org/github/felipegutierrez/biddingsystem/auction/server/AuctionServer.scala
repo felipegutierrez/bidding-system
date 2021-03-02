@@ -89,4 +89,6 @@ class AuctionServer(bidders: List[String] = List[String]("http://localhost:8081"
 
     Http().newServerAt("0.0.0.0", 8080).bindFlow(routes)
   }
+
+  def getBidders(): List[String] = bidders
 }

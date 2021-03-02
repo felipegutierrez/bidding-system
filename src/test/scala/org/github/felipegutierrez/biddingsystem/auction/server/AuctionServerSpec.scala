@@ -30,6 +30,11 @@ class AuctionServerSpec extends AnyWordSpec
       Get("/string") ~> auctionServer.routes ~> check {
         status shouldBe StatusCodes.Forbidden
       }
+      Get("/2?c=5&b=2") ~> auctionServer.routes ~> check {
+        status shouldBe StatusCodes.OK
+        // the bidders are not up so there will be no winner
+        responseAs[Option[String]] shouldBe Some("")
+      }
       Post("/123") ~> auctionServer.routes ~> check {
         // status shouldBe StatusCodes.BadRequest
         rejections should not be empty // "natural language" style
@@ -71,6 +76,13 @@ class AuctionServerSpec extends AnyWordSpec
       Get("/1?a=5&a=5&b=10") ~> auctionServer.routes ~> check {
         status shouldBe StatusCodes.OK
       }
+    }
+  }
+
+  "a Auction Server singleton object" should {
+    "have the same list of bidders of an instance Auction Server" in {
+      val auctionServerSingleton = AuctionServer.apply()
+      assertResult(auctionServerSingleton.getBidders())(auctionServer.getBidders())
     }
   }
 }
