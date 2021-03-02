@@ -14,6 +14,7 @@ val scalaLoggingVersion = "3.9.2"
 val jwtSprayVersion = "4.3.0"
 val junitVersion = "4.13"
 val scalaTestPlusVersion = "3.2.3.0"
+val scalamockVersion = "5.1.0"
 val mockitoScalaVersion = "1.16.5"
 
 resolvers += Resolver.jcenterRepo
@@ -57,6 +58,7 @@ libraryDependencies ++= Seq(
   "org.scalatestplus" %% "junit-4-13" % scalaTestPlusVersion % "test",
 
   // Log + Mockito
+  "org.scalamock" %% "scalamock" % scalamockVersion % Test,
   "com.typesafe.akka" %% "akka-slf4j" % akkaVersion,
   "ch.qos.logback" % "logback-classic" % logbackVersion,
   "com.typesafe.scala-logging" %% "scala-logging" % scalaLoggingVersion,

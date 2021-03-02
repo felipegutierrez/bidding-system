@@ -4,7 +4,6 @@ import akka.actor.{Actor, ActorLogging, Props}
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
 import akka.http.scaladsl.model._
-import akka.pattern.pipe
 import akka.util.ByteString
 import org.github.felipegutierrez.biddingsystem.auction.message.BidJsonProtocol
 import org.github.felipegutierrez.biddingsystem.auction.message.BidProtocol._
@@ -18,8 +17,8 @@ import scala.concurrent.duration._
  * The Auction Client actor receives a list of bidders as its property.
  */
 object AuctionClientActor {
-  def props(bidders: List[String]) = {
-    Props(new AuctionClientActor(bidders))
+  def props(bidders: List[String], httpAuctionRestClient: HttpAuctionClient = new HttpAuctionRestClient()) = {
+    Props(new AuctionClientActor(bidders, httpAuctionRestClient))
   }
 }
 
@@ -38,9 +37,11 @@ object AuctionClientActor {
  *
  * @param bidders the list of bidders received from the [[org.github.felipegutierrez.biddingsystem.auction.server.AuctionServer]].
  */
-class AuctionClientActor(bidders: List[String])
-  extends Actor with ActorLogging
-    with BidJsonProtocol with SprayJsonSupport {
+class AuctionClientActor(bidders: List[String], httpAuctionRestClient: HttpAuctionClient)
+  extends Actor
+    with ActorLogging
+    with BidJsonProtocol
+    with SprayJsonSupport {
 
   import context.dispatcher
 
@@ -61,7 +62,7 @@ class AuctionClientActor(bidders: List[String])
           )
         }
         .map { httpRequest =>
-          val httpResponseFuture = http.singleRequest(httpRequest).pipeTo(self) // this creates the first Future[HttpResponse]
+          val httpResponseFuture = httpAuctionRestClient.sendRequest(httpRequest) // .pipeTo(self) // this creates the first Future[HttpResponse]
           Await.ready(httpResponseFuture, 5 seconds)
           httpResponseFuture.value.get.toOption.getOrElse(HttpResponse(StatusCodes.NotFound))
         }
@@ -83,8 +84,6 @@ class AuctionClientActor(bidders: List[String])
 
       log.info(s"winner: $bidOfferWinner")
       sender() ! Some(bidOfferWinner.getOrElse(BidResponse("", 0, "")).content)
-    case response@HttpResponse(StatusCodes.OK, headers, entity, _) => log.info(s"received HttpResponse OK(200): $response")
-    case response@HttpResponse(code, _, _, _) => log.info(s"Request failed, response code: $code")
     case message => log.warning(s"unknown message: $message")
   }
 }
