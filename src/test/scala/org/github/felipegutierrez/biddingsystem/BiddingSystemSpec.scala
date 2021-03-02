@@ -36,9 +36,23 @@ class BiddingSystemSpec extends AnyFlatSpec with Matchers with MockitoSugar {
 
     when(mocked.isInfoEnabled()).thenReturn(true)
 
-    val option = Array[String] { "" }
+    val option = Array[String] {
+      ""
+    }
     initTestableBiddingSystem(mocked).run(option)
 
     verify(mocked).info("Unknown option: " + option(0))
+  }
+
+  "the bidding system main class" should
+    "start with '--bidders http://localhost:8081,http://localhost:8081' argument list" in {
+    val mocked = Mockito.mock(classOf[Underlying])
+
+    when(mocked.isInfoEnabled()).thenReturn(true)
+
+    val option = Array[String]("--bidders", "http://127.0.0.1:8081,http://127.0.0.1:8082")
+    initTestableBiddingSystem(mocked).run(option)
+
+    verify(mocked).info("The Auction system is starting with bidders: " + option(1).split(",").mkString(", "))
   }
 }

@@ -21,6 +21,7 @@ object BiddingSystem {
      * The method that receives arguments to start the Bidding System with a given number of bidders.
      * The bidders must be passed as argument following the pattern "--bidders [host_of_the_bidder_split_by_comma_without_space]"
      * Example: "--bidders http://localhost:8081,http://localhost:8082,http://localhost:8083"
+     *
      * @param args the bidders split by comma and without space
      */
     def run(args: Array[String]): Unit = {
@@ -46,7 +47,7 @@ object BiddingSystem {
 
         val options = nextOption(Map(), arglist)
         val bidders = options.get('bidders).getOrElse("").toString.split(",").toList
-        logger.info(s"The Auction system is starting with bidders: ${bidders.mkString(", ")}")
+        logger.info("The Auction system is starting with bidders: " + bidders.mkString(", "))
         new AuctionServer(bidders).run()
       }
     }

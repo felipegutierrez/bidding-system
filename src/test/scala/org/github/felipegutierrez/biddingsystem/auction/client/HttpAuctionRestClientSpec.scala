@@ -4,6 +4,8 @@ import akka.actor.ActorSystem
 import akka.http.scaladsl.model._
 import akka.testkit.{ImplicitSender, TestKit}
 import akka.util.ByteString
+import org.github.felipegutierrez.biddingsystem.auction.message.Bid
+import org.github.felipegutierrez.biddingsystem.auction.message.BidProtocol.BidRequest
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.concurrent.ScalaFutures
@@ -11,6 +13,7 @@ import org.scalatest.matchers.must.Matchers.convertToAnyMustWrapper
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
 
+import java.util.UUID
 import scala.concurrent.Future
 
 class HttpAuctionRestClientSpec extends TestKit(ActorSystem("AuctionClientSpec"))
@@ -58,10 +61,6 @@ class HttpAuctionRestClientSpec extends TestKit(ActorSystem("AuctionClientSpec")
         ))
         .returning(Future.successful(HttpResponse(entity = HttpEntity(ByteString(expectedContent)))))
 
-      // val mockAuctionClientActor = system.actorOf(AuctionClientActor.props(bidders, mockHttpAuctionClient), "mockAuctionClientActorSpec")
-      // val bidRequestMsg = BidRequest(UUID.randomUUID().toString, Bid(1, Map("a" -> "5")))
-      // mockAuctionClientActor ! bidRequestMsg
-
       val httpRequest: HttpRequest = HttpRequest( // create the request
         HttpMethods.POST,
         uri = Uri(bidders(0)),
@@ -73,6 +72,10 @@ class HttpAuctionRestClientSpec extends TestKit(ActorSystem("AuctionClientSpec")
           res must equal(HttpResponse(entity = HttpEntity(ByteString(expectedContent))))
         }
       }
+
+      val mockAuctionClientActor = system.actorOf(AuctionClientActor.props(bidders, mockHttpAuctionClient), "mockAuctionClientActorSpec")
+      val bidRequestMsg = BidRequest(UUID.randomUUID().toString, Bid(1, Map("a" -> "5")))
+      mockAuctionClientActor ! bidRequestMsg
     }
   }
 }

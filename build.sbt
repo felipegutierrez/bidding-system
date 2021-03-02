@@ -16,6 +16,7 @@ val junitVersion = "4.13"
 val scalaTestPlusVersion = "3.2.3.0"
 val scalamockVersion = "5.1.0"
 val mockitoScalaVersion = "1.16.5"
+val scalacScoverageVersion = "1.4.2"
 
 resolvers += Resolver.jcenterRepo
 
@@ -63,4 +64,6 @@ libraryDependencies ++= Seq(
   "ch.qos.logback" % "logback-classic" % logbackVersion,
   "com.typesafe.scala-logging" %% "scala-logging" % scalaLoggingVersion,
   "org.mockito" %% "mockito-scala" % mockitoScalaVersion,
+
+  "org.scoverage" %% "scalac-scoverage-runtime" % scalacScoverageVersion,
 )
